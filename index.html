@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <title>Login - E-Bussen</title>
+    <style>
+      /* تنسيق عام للصفحة */
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #121212;
+        color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      /* تنسيق النموذج */
+      #loginForm {
+        background-color: #1f1f1f;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        width: 350px;
+        text-align: center;
+      }
+
+      /* تنسيق العناوين */
+      h1 {
+        color: #bb86fc;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+      }
+
+      /* تنسيق الحقول */
+      .input-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #e0e0e0;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+        color: #495057;
+        transition: border-color 0.3s ease;
+      }
+
+      .input-group input:focus {
+        border-color: #bb86fc;
+        outline: none;
+      }
+
+      /* تنسيق الزر */
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #bb86fc;
+        color: #1f1f1f;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #9b6fcf;
+      }
+
+      /* تنسيق رسائل الخطأ */
+      .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: none; /* مخفي بشكل افتراضي */
+      }
+
+      /* تنسيق الحقول غير الصالحة */
+      .input-group.invalid input {
+        border-color: #dc3545;
+      }
+
+      .input-group.invalid .error-message {
+        display: block; /* عرض رسالة الخطأ */
+      }
+
+      /* تنسيق مؤشر التحميل */
+      .spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1rem;
+      }
+
+      .spinner-border {
+        width: 2rem;
+        height: 2rem;
+        border: 0.25em solid #bb86fc;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+      }
+
+      @keyframes spinner-border {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* تنسيق رسائل التأكيد */
+      .confirmation-message {
+        color: #28a745;
+        font-size: 0.875rem;
+        margin-top: 1rem;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="loginForm">
+      <h1>Login</h1>
+      <div class="input-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" />
+        <div class="error-message" id="usernameError">
+          Username cannot be empty.
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" />
+        <div class="error-message" id="passwordError">
+          Password cannot be empty.
+        </div>
+      </div>
+      <button type="submit">Login</button>
+      <div id="loadingSpinner" class="spinner" style="display: none">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <div id="response"></div>
+      <div id="confirmationMessage" class="confirmation-message">
+        Login successful! Redirecting...
+      </div>
+    </form>
+
+    <script>
+      // التحقق في الوقت الفعلي (Real-Time Validation)
+      document
+        .getElementById("username")
+        .addEventListener("input", function () {
+          const username = this.value.trim();
+          const usernameError = document.getElementById("usernameError");
+
+          if (username === "") {
+            usernameError.style.display = "block";
+            this.parentElement.classList.add("invalid");
+          } else {
+            usernameError.style.display = "none";
+            this.parentElement.classList.remove("invalid");
+          }
+        });
+
+      document
+        .getElementById("password")
+        .addEventListener("input", function () {
+          const password = this.value.trim();
+          const passwordError = document.getElementById("passwordError");
+
+          if (password === "") {
+            passwordError.style.display = "block";
+            this.parentElement.classList.add("invalid");
+          } else {
+            passwordError.style.display = "none";
+            this.parentElement.classList.remove("invalid");
+          }
+        });
+
+      // إرسال النموذج
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault(); // منع إعادة تحميل الصفحة
+
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value.trim();
+
+          // إعادة تعيين رسائل الخطأ
+          document.getElementById("usernameError").style.display = "none";
+          document.getElementById("passwordError").style.display = "none";
+          document
+            .querySelectorAll(".input-group")
+            .forEach((group) => group.classList.remove("invalid"));
+
+          let isValid = true;
+
+          // التحقق من اسم المستخدم
+          if (username === "") {
+            document.getElementById("usernameError").style.display = "block";
+            document
+              .querySelector(".input-group:nth-child(1)")
+              .classList.add("invalid");
+            isValid = false;
+          }
+
+          // التحقق من كلمة المرور
+          if (password === "") {
+            document.getElementById("passwordError").style.display = "block";
+            document
+              .querySelector(".input-group:nth-child(2)")
+              .classList.add("invalid");
+            isValid = false;
+          }
+
+          // إذا كانت البيانات صحيحة، إرسال الطلب إلى الخادم
+          if (isValid) {
+            try {
+              // إظهار مؤشر التحميل
+              document.getElementById("loadingSpinner").style.display = "flex";
+
+              // تأخير لمدة 3 ثوانٍ لمحاكاة انتظار الرد من الخادم
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+
+              const response = await fetch("http://localhost:3000/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, password }),
+              });
+
+              const data = await response.json();
+              console.log(data);
+
+              // إخفاء مؤشر التحميل
+              document.getElementById("loadingSpinner").style.display = "none";
+
+              // عرض رسالة التأكيد
+              if (response.ok) {
+                document.getElementById("confirmationMessage").style.display =
+                  "block";
+
+                setTimeout(() => {
+                  window.location.href = "home.html";
+                }, 2000); // تحويل المستخدم بعد 2 ثوانٍ
+              } else {
+                alert("Invalid credentials");
+              }
+            } catch (error) {
+              console.error("Error:", error);
+              // إخفاء مؤشر التحميل في حالة حدوث خطأ
+              document.getElementById("loadingSpinner").style.display = "none";
+            }
+          }
+        });
+    </script>
+  </body>
+</html>
